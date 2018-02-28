@@ -1,20 +1,26 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-const Item = (props) => {
-    let anchor = props.href ? true : false
-    return (
-        <li>
-            {
-                anchor ?
-                    <a href={props.href} onClick={props.onHandleClick} title={props.title}>{props.title}</a> :
-                    <button onClick={props.onHandleClick} title={props.title}>{props.title}</button>}
-        </li>
-    )
-}
-Item.propTypes = {
-    onHandleClick: PropTypes.func,
-    href: PropTypes.string,
-    title: PropTypes.string,
+import React from "react";
+import PropTypes from "prop-types";
+const Item = props => {
+  let anchor = props.href ? true : false;
+  const { onHandleClick, target, href, title } = props;
 
-}
-export default Item
+  return (
+    <li>
+      {anchor ? (
+        <a href={href} onClick={onHandleClick} target={target} title={title}>
+          {title}
+        </a>
+      ) : (
+        <button onClick={onHandleClick} title={title}>
+          {title}
+        </button>
+      )}
+    </li>
+  );
+};
+Item.propTypes = {
+  onHandleClick: PropTypes.func,
+  href: PropTypes.string,
+  title: PropTypes.string
+};
+export default Item;
