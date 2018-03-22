@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM, { render } from "react-dom";
 import * as DropDown from "./component/dropdown";
 import * as Label from "./component/label";
+import * as Radio from "./component/radio";
+
 import App from "./app.jsx";
 let settingsGlobal = [];
 
@@ -10,7 +12,6 @@ let settingsGlobal = [];
     // This is the easiest way to have default options.
     var settings = $.extend(
       {
-        // These are the defaults.
         css: "table table-striped table-hover table-condensed"
       },
       options
@@ -25,6 +26,9 @@ let settingsGlobal = [];
             if (!it.header.formatters) {
               it.header.formatters = [];
             }
+            if (!it.cell) {
+              it.cell = [];
+            }
             if (!it.cell.formatters) {
               it.cell.formatters = [];
             }
@@ -33,25 +37,24 @@ let settingsGlobal = [];
                 let tmpCompo = null;
                 let visible = true;
                 let title = "";
-                if (it.component.visible != undefined) {
+                if (it.component.visible !== undefined) {
                   visible = it.component.visible;
-                  if (typeof it.component.visible == "function") {
+                  if (typeof it.component.visible === "function") {
                     visible = it.component.visible(extra);
                   }
                 }
-
-                if (it.component.title != undefined) {
+                if (it.component.title !== undefined) {
                   title = it.component.title;
-                  if (typeof it.component.title == "function") {
+                  if (typeof it.component.title === "function") {
                     title = it.component.title(extra);
                   }
                 }
                 switch (it.component.type) {
                   case "label":
                     let mode = "default";
-                    if (it.component.mode != undefined) {
+                    if (it.component.mode !== undefined) {
                       mode = it.component.mode;
-                      if (typeof it.component.mode == "function") {
+                      if (typeof it.component.mode === "function") {
                         mode = it.component.mode(extra);
                       }
                     }
@@ -74,6 +77,19 @@ let settingsGlobal = [];
                         title={it.component.title}
                         icon={it.component.icon}
                         size={it.component.size}
+                        target={it.component.target}
+                      />
+                    );
+                    break;
+                  case "radio":
+                    tmpCompo = (
+                      <Radio.Provider
+                        id={it.component.id}
+                        extra={extra}
+                        property={it.header.property}
+                        name={it.component.name}
+                        title={it.component.title}
+                        value={value}
                       />
                     );
                     break;
@@ -101,9 +117,9 @@ let settingsGlobal = [];
           el.cell.formatters = [
             (value, extra) => {
               let visible = true;
-              if (settings.component.visible != undefined) {
+              if (settings.component.visible !== undefined) {
                 visible = settings.component.visible;
-                if (typeof settings.component.visible == "function") {
+                if (typeof settings.component.visible === "function") {
                   visible = settings.component.visible(extra);
                 }
               }
@@ -128,23 +144,26 @@ let settingsGlobal = [];
       // Greenify the collection based on the settings variable.
     } else {
       let cSet = settingsGlobal[this.selector];
-
-      if (settings.rows == undefined) {
+      if (settings.rows === undefined) {
         settings.rows = cSet.rows;
       }
-      if (settings.columns == undefined) {
+      if (settings.columns === undefined) {
         settings.columns = cSet.columns;
       }
-      if (settings.css == undefined) {
+      if (settings.css === undefined) {
         settings.css = cSet.css;
       }
-      if (settings.rowKey == undefined) {
+      if (settings.rowKey === undefined) {
         settings.rowKey = cSet.rowKey;
       }
-      if (settings.component == undefined) {
+      if (settings.component === undefined) {
         settings.component = cSet.component;
       }
+      if (settings.elementFilter === undefined) {
+        settings.elementFilter = cSet.elementFilter;
+      }
     }
+
     let cr = Math.random();
     render(
       <App
@@ -154,6 +173,7 @@ let settingsGlobal = [];
         rowKey={settings.rowKey}
         component={settings.component}
         row={settings.row}
+        elementFilter={settings.elementFilter}
         cr={cr}
       />,
       this[0]

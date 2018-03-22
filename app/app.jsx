@@ -1,5 +1,8 @@
 import React from "react";
+import { render } from "react-dom";
 import * as Table from "reactabular-table";
+import * as Tool from "./tool";
+import * as Control from "./component/control";
 
 const BodyWrapper = props => <tbody {...props} />;
 BodyWrapper.shouldComponentUpdate = function(
@@ -25,21 +28,76 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      crud: false,
       css: "",
       columns: [],
       rows: [],
       rowKey: "",
-      cr: ""
+      cr: "",
+      controls: [],
+      query: {},
+      emptyData: ""
     };
+    this.eventHandle = this.eventHandle.bind(this);
   }
+  eventHandle(event) {
+    let query = this.state.query;
+
+    switch (event.target.type) {
+      case "select-one":
+        if (event.target.value === "") {
+          delete query[event.target.dataset.col];
+        } else {
+          query[event.target.dataset.col] = event.target.value;
+        }
+        break;
+      case "text":
+        if (event.target.value === "") {
+          delete query[event.target.dataset.col];
+        } else {
+          query[event.target.dataset.col] = event.target.value;
+        }
+        break;
+      default:
+        query = {};
+
+        break;
+    }
+    this.setState({
+      query
+    });
+  }
+
   componentDidMount() {
-    const { columns, rows, css, rowKey, cr } = this.props;
+    const { columns, rows, css, rowKey, cr, elementFilter } = this.props;
+    let { emptyData } = this.props;
+    let controls = [];
+    if (emptyData === undefined) {
+      emptyData = "Información no disponible";
+    }
+    let tmpControls = [];
+    if (columns !== undefined) {
+      controls = columns.filter(fil => fil.filter);
+      controls.forEach((it, ky) => {
+        tmpControls.push(
+          <Control.Provider
+            key={ky}
+            control={it}
+            eventHandle={this.eventHandle}
+          />
+        );
+      });
+      let nd = document.querySelector(elementFilter);
+      render(tmpControls, nd);
+    }
     this.setState({
       css,
       columns,
       rows,
       rowKey,
-      cr
+      cr,
+      controls,
+      emptyData
     });
   }
   componentWillReceiveProps(nextProps) {
@@ -48,7 +106,13 @@ class App extends React.Component {
   }
 
   render() {
-    const { rows, columns } = this.state;
+    let rowsFilter = [];
+    const { rows, columns, controls, query } = this.state;
+    if (Object.getOwnPropertyNames(query).length > 0) {
+      rowsFilter = Tool.multiFilter(rows, query);
+    } else {
+      rowsFilter = rows;
+    }
     return (
       <div>
         <Table.Provider
@@ -62,11 +126,20 @@ class App extends React.Component {
           }}
         >
           <Table.Header />
-          <Table.Body rows={rows} rowKey={this.state.rowKey} />
+          {rowsFilter.length > 0 ? (
+            <Table.Body rows={rowsFilter} rowKey={this.state.rowKey} />
+          ) : (
+            <tbody>
+              <tr>
+                <td colSpan={columns.length} style={{ textAlign: "center" }}>
+                  {this.state.emptyData}
+                </td>
+              </tr>
+            </tbody>
+          )}
         </Table.Provider>
       </div>
     );
   }
 }
-
 export default App;

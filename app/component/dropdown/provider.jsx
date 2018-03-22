@@ -41,14 +41,14 @@ const Provider = prop => {
           let title = "";
           if (it.title != undefined) {
             title = it.title;
-            if (typeof it.title === "function") {
+            if (typeof it.title == "function") {
               title = it.title(extra);
             }
           }
           let href = "";
           if (it.href != undefined) {
             href = it.href;
-            if (typeof it.href === "function") {
+            if (typeof it.href == "function") {
               href = it.href(extra);
             }
           }
@@ -62,7 +62,7 @@ const Provider = prop => {
                   ? onHandleClick(inp, extra)
                   : it.onHandleClick(inp, extra)
               }
-              {...prop}
+              target={it.target}
             />
           ) : (
             ""
