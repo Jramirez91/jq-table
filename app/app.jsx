@@ -40,9 +40,11 @@ class App extends React.Component {
     };
     this.eventHandle = this.eventHandle.bind(this);
   }
-  eventHandle(event) {
+  eventHandle(par) {
+    let { event, input } = par;
     let query = this.state.query;
 
+    console.log(event.target.type);
     switch (event.target.type) {
       case "select-one":
         if (event.target.value === "") {
@@ -56,6 +58,20 @@ class App extends React.Component {
           delete query[event.target.dataset.col];
         } else {
           query[event.target.dataset.col] = event.target.value;
+        }
+        break;
+      case "checkbox":
+        if (!event.target.checked) {
+          delete query[event.target.dataset.col];
+        } else {
+          query[event.target.dataset.col] = event.target.value;
+        }
+        break;
+      case "button":
+        if (input.value === "") {
+          delete query[input.dataset.col];
+        } else {
+          query[input.dataset.col] = input.value;
         }
         break;
       default:
@@ -107,7 +123,7 @@ class App extends React.Component {
 
   render() {
     let rowsFilter = [];
-    const { rows, columns, controls, query } = this.state;
+    const { rows, columns, query } = this.state;
     if (Object.getOwnPropertyNames(query).length > 0) {
       rowsFilter = Tool.multiFilter(rows, query);
     } else {
