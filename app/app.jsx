@@ -104,7 +104,7 @@ class App extends React.Component {
         );
       });
       let nd = document.querySelector(elementFilter);
-      render(tmpControls, nd);
+      if (nd) render(tmpControls, nd);
     }
     this.setState({
       css,

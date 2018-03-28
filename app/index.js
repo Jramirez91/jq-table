@@ -3,6 +3,7 @@ import ReactDOM, { render } from "react-dom";
 import * as DropDown from "./component/dropdown";
 import * as Label from "./component/label";
 import * as Radio from "./component/radio";
+import * as CheckBox from "./component/checkbox";
 
 import App from "./app.jsx";
 let settingsGlobal = [];
@@ -26,6 +27,38 @@ let settingsGlobal = [];
             if (!it.header.formatters) {
               it.header.formatters = [];
             }
+            it.header.formatters = [
+              (label, extra) => {
+                let tmpCon = null;
+
+                switch (it.component.type) {
+                  case "checkbox":
+                    if (it.component.enableGlobal)
+                      tmpCon = (
+                        <input
+                          type="checkbox"
+                          defaultChecked={it.component.initState}
+                          onChange={input =>
+                            input.target.checked
+                              ? $(`input[name="${it.property}"]`).prop(
+                                  "checked",
+                                  true
+                                )
+                              : $(`input[name="${it.property}"]`).prop(
+                                  "checked",
+                                  false
+                                )
+                          }
+                        />
+                      );
+                    break;
+                  default:
+                    tmpCon = null;
+                    break;
+                }
+                return tmpCon;
+              }
+            ];
             if (!it.cell) {
               it.cell = [];
             }
@@ -93,11 +126,32 @@ let settingsGlobal = [];
                       />
                     );
                     break;
+                  case "checkbox":
+                    let disabled = false;
+                    if (it.component.disabled !== undefined) {
+                      disabled = it.component.disabled;
+                      if (typeof it.component.disabled === "function") {
+                        disabled = it.component.disabled(extra);
+                      }
+                    }
+
+                    tmpCompo = (
+                      <CheckBox.Provider
+                        id={it.component.id}
+                        extra={extra}
+                        initState={it.component.initState}
+                        disabled={disabled}
+                        property={it.header.property}
+                        name={it.property}
+                        title={it.component.title}
+                        value={value}
+                      />
+                    );
+                    break;
                   default:
                     tmpCompo = null;
                     break;
                 }
-
                 return visible ? tmpCompo : "";
               }
             ];
