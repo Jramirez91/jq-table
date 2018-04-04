@@ -33,7 +33,7 @@ let settingsGlobal = [];
 
                 switch (it.component.type) {
                   case "checkbox":
-                    if (it.component.enableGlobal)
+                    if (it.component.enableGlobal) {
                       tmpCon = (
                         <input
                           type="checkbox"
@@ -51,6 +51,9 @@ let settingsGlobal = [];
                           }
                         />
                       );
+                    } else {
+                      tmpCon = it.header.label;
+                    }
                     break;
                   default:
                     tmpCon = null;
@@ -217,10 +220,12 @@ let settingsGlobal = [];
         settings.elementFilter = cSet.elementFilter;
       }
     }
+    if (settings.callBack) settings.callBack.call(settings.rows);
 
     let cr = Math.random();
     render(
       <App
+        selector={this.selector}
         columns={settings.columns}
         css={settings.css}
         rows={settings.rows}
@@ -229,6 +234,9 @@ let settingsGlobal = [];
         row={settings.row}
         elementFilter={settings.elementFilter}
         cr={cr}
+        action={(rows, selector) => {
+          if (selector !== "") settingsGlobal[selector].rows = rows;
+        }}
       />,
       this[0]
     );

@@ -1,6 +1,8 @@
 import React from "react";
 import { render } from "react-dom";
 import * as Table from "reactabular-table";
+import * as edit from "react-edit";
+import { cloneDeep, findIndex } from "lodash";
 import * as Tool from "./tool";
 import * as Control from "./component/control";
 
@@ -28,6 +30,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      selector: "",
       crud: false,
       css: "",
       columns: [],
@@ -39,7 +42,9 @@ class App extends React.Component {
       emptyData: ""
     };
     this.eventHandle = this.eventHandle.bind(this);
+    this.getColumns = this.getColumns.bind(this);
   }
+
   eventHandle(par) {
     let { event, input } = par;
     let query = this.state.query;
@@ -84,13 +89,72 @@ class App extends React.Component {
     });
   }
 
+  getColumns(columns) {
+    const editable = edit.edit({
+      activateEvent: "onDoubleClick",
+      isEditing: ({ columnIndex, rowData }) => columnIndex === rowData.editing,
+      onActivate: ({ columnIndex, rowData }) => {
+        const index = findIndex(this.state.rows, { id: rowData.id });
+        const rows = cloneDeep(this.state.rows);
+
+        rows[index].editing = columnIndex;
+
+        this.setState({ rows });
+      },
+      onValue: ({ value, rowData, property }) => {
+        const index = findIndex(this.state.rows, { id: rowData.id });
+        const rows = cloneDeep(this.state.rows);
+
+        rows[index][property] = value;
+        rows[index].editing = false;
+
+        this.setState({ rows });
+      }
+    });
+
+    columns.forEach(it => {
+      if (it.edit) {
+        if (!it.cell) {
+          it.cell = [];
+        }
+        if (!it.cell.transforms) {
+          if (it.edit.type) {
+            switch (it.edit.type) {
+              case "input":
+                it.cell.transforms = [
+                  editable(edit.input({ props: it.edit.props }))
+                ];
+                break;
+              case "dropdown":
+                it.cell.transforms = [
+                  editable(
+                    edit.dropdown({
+                      options: it.edit.options,
+                      props: it.edit.props
+                    })
+                  )
+                ];
+                break;
+              default:
+                break;
+            }
+          }
+        }
+      }
+    });
+    return columns;
+  }
+
   componentDidMount() {
-    const { columns, rows, css, rowKey, cr, elementFilter } = this.props;
-    let { emptyData } = this.props;
+    const { rows, css, rowKey, cr, elementFilter, selector } = this.props;
+    let { emptyData, columns } = this.props;
     let controls = [];
     if (emptyData === undefined) {
       emptyData = "Información no disponible";
     }
+
+    columns = this.getColumns(columns);
+
     let tmpControls = [];
     if (columns !== undefined) {
       controls = columns.filter(fil => fil.filter);
@@ -107,6 +171,7 @@ class App extends React.Component {
       if (nd) render(tmpControls, nd);
     }
     this.setState({
+      selector,
       css,
       columns,
       rows,
@@ -116,6 +181,7 @@ class App extends React.Component {
       emptyData
     });
   }
+
   componentWillReceiveProps(nextProps) {
     const { rows } = nextProps;
     this.setState({ rows });
@@ -124,6 +190,8 @@ class App extends React.Component {
   render() {
     let rowsFilter = [];
     const { rows, columns, query } = this.state;
+
+    this.props.action(rows, this.state.selector);
     if (Object.getOwnPropertyNames(query).length > 0) {
       rowsFilter = Tool.multiFilter(rows, query);
     } else {
