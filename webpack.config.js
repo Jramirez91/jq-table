@@ -10,7 +10,7 @@ var config = {
   entry: APP_DIR + "/index.js",
   output: {
     path: BUILD_DIR,
-    filename: "table-tic.js"
+    filename: "qt-table.js"
     //filename: 'bundle.js'
   },
   module: {

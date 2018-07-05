@@ -215,7 +215,7 @@ class App extends React.Component {
           ) : (
             <tbody>
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: "center" }}>
+                <td colSpan={columns.length} className="col-sm-12" style={{ textAlign: "center" }}>
                   {this.state.emptyData}
                 </td>
               </tr>
