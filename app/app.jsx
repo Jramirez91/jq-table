@@ -91,7 +91,7 @@ class App extends React.Component {
 
   getColumns(columns) {
     const editable = edit.edit({
-      activateEvent: "onDoubleClick",
+      activateEvent: "onClick",
       isEditing: ({ columnIndex, rowData }) => columnIndex === rowData.editing,
       onActivate: ({ columnIndex, rowData }) => {
         const index = findIndex(this.state.rows, { id: rowData.id });

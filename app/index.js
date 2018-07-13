@@ -39,12 +39,12 @@ let settingsGlobal = [];
                           type="checkbox"
                           defaultChecked={it.component.initState}
                           onChange={input =>
-                            input.target.checked
-                              ? $(`input[name="${it.property}"]`).prop(
+                            input.target.checked                            
+                              ? $(`input[name="${it.property}"]:enabled`).prop(
                                   "checked",
                                   true
                                 )
-                              : $(`input[name="${it.property}"]`).prop(
+                              : $(`input[name="${it.property}"]:enabled`).prop(
                                   "checked",
                                   false
                                 )
